@@ -36,6 +36,13 @@
       "when": 1790311775392,
       "tag": "0004_import_halat_yarisi_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790312949133,
+      "tag": "0005_add_question_type",
+      "breakpoints": true
     }
   ]
 }
