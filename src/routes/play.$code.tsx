@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useGameState } from "@/hooks/useGameState";
+import { useStartCountdown } from "@/components/game/StartCountdown";
 import { heartbeat, joinRoom, submitAnswer } from "@/lib/game.functions";
 
 export const Route = createFileRoute("/play/$code")({
@@ -108,6 +109,7 @@ function GameView({ code, playerId }: { code: string; playerId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [typed, setTyped] = useState("");
   const questionIndex = data?.question?.index;
+  const countdown = useStartCountdown(data?.status, questionIndex);
 
   useEffect(() => {
     setTyped("");
@@ -172,6 +174,7 @@ function GameView({ code, playerId }: { code: string; playerId: string }) {
 
   return (
     <Shell>
+      {countdown}
       <div className="flex items-center justify-between gap-3">
         <div className={`rounded-full ${teamColor} px-4 py-1.5 text-sm font-bold text-panel`}>
           {teamLabel}

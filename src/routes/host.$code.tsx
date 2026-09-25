@@ -6,6 +6,7 @@ import tugOfWarGround from "@/assets/tug-of-war-ground.png";
 import tugOfWarPlayers from "@/assets/tug-of-war-players.png";
 import { TugOfWarArena } from "@/components/game/TugOfWarArena";
 import { useGameState } from "@/hooks/useGameState";
+import { useStartCountdown } from "@/components/game/StartCountdown";
 import { controlRoom } from "@/lib/game.functions";
 
 export const Route = createFileRoute("/host/$code")({
@@ -61,6 +62,7 @@ function HostScreen() {
   const status = data?.status;
   const resolved = data?.resolved ?? false;
   const qIndex = q?.index ?? 0;
+  const countdown = useStartCountdown(status, q?.index);
 
   // Doğru cevap verildiğinde sıradaki soruya geç
   useEffect(() => {
@@ -106,6 +108,7 @@ function HostScreen() {
 
   return (
     <main className="min-h-screen bg-background px-4 py-6 sm:px-8">
+      {countdown}
       <div className="mx-auto w-full max-w-[1400px]">
         <div className="rounded-[var(--radius)] bg-panel p-5 shadow-[var(--shadow-panel)] sm:p-10">
           {waiting && !lobbyOpen ? (
