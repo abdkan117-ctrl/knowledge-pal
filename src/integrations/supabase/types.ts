@@ -16,7 +16,8 @@ export type Database = {
     Tables: {
       answers: {
         Row: {
-          answer: string
+          answer: string | null
+          answer_text: string | null
           created_at: string
           id: string
           is_correct: boolean
@@ -25,7 +26,8 @@ export type Database = {
           room_id: string
         }
         Insert: {
-          answer: string
+          answer?: string | null
+          answer_text?: string | null
           created_at?: string
           id?: string
           is_correct: boolean
@@ -34,7 +36,8 @@ export type Database = {
           room_id: string
         }
         Update: {
-          answer?: string
+          answer?: string | null
+          answer_text?: string | null
           created_at?: string
           id?: string
           is_correct?: boolean
@@ -128,7 +131,8 @@ export type Database = {
       questions: {
         Row: {
           category: string
-          correct_answer: string
+          correct_answer: string | null
+          correct_answer_text: string | null
           created_at: string
           difficulty: string
           id: string
@@ -143,7 +147,8 @@ export type Database = {
         }
         Insert: {
           category?: string
-          correct_answer: string
+          correct_answer?: string | null
+          correct_answer_text?: string | null
           created_at?: string
           difficulty?: string
           id?: string
@@ -158,7 +163,8 @@ export type Database = {
         }
         Update: {
           category?: string
-          correct_answer?: string
+          correct_answer?: string | null
+          correct_answer_text?: string | null
           created_at?: string
           difficulty?: string
           id?: string
