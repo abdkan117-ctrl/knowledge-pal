@@ -187,14 +187,14 @@ export const getRoomState = createServerFn({ method: "POST" })
       }
       const { data: answers } = await supabase
         .from("answers")
-        .select("player_id, answer, is_correct")
+        .select("player_id, answer_text, is_correct")
         .eq("room_id", room.id)
         .eq("question_id", currentId);
       answeredIds = (answers ?? []).map((a) => a.player_id);
       // Soru yalnızca doğru cevap verildiğinde çözülür; yanlış cevap veren denemeye devam eder.
       resolved = (answers ?? []).some((a) => a.is_correct);
       const mine = (answers ?? []).find((a) => a.player_id === data.playerId);
-      if (mine) me = { answer: mine.answer, isCorrect: mine.is_correct };
+      if (mine) me = { answer: mine.answer_text ?? "", isCorrect: mine.is_correct };
     }
 
     return {
@@ -238,12 +238,13 @@ export const submitAnswer = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!player || player.room_id !== room.id) throw new Error("Oyuncu bu odada değil");
 
-    const { data: q } = await supabase
+    const { data: qRow } = await supabase
       .from("questions")
-      .select("correct_answer, option_a, option_b, option_c, option_d, question_type")
+      .select("correct_answer_text, option_a, option_b, option_c, option_d, question_type")
       .eq("id", currentId)
       .maybeSingle();
-    if (!q) throw new Error("Soru bulunamadı");
+    if (!qRow) throw new Error("Soru bulunamadı");
+    const q = { ...qRow, correct_answer: qRow.correct_answer_text ?? "" };
 
     const { data: existing } = await supabase
       .from("answers")
@@ -265,7 +266,7 @@ export const submitAnswer = createServerFn({ method: "POST" })
     if (mine) {
       const { error: updErr } = await supabase
         .from("answers")
-        .update({ answer: data.answer, is_correct: isCorrect })
+        .update({ answer_text: data.answer, is_correct: isCorrect })
         .eq("id", mine.id);
       if (updErr) throw new Error("Cevap kaydedilemedi");
     } else {
@@ -273,7 +274,7 @@ export const submitAnswer = createServerFn({ method: "POST" })
         room_id: room.id,
         player_id: player.id,
         question_id: currentId,
-        answer: data.answer,
+        answer_text: data.answer,
         is_correct: isCorrect,
       });
       if (insErr) throw new Error("Cevap kaydedilemedi");

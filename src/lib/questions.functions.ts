@@ -115,13 +115,16 @@ export const listQuestions = createServerFn({ method: "POST" })
     let query = supabase
       .from("questions")
       .select(
-        "id, question, option_a, option_b, option_c, option_d, correct_answer, question_type, category, difficulty",
+        "id, question, option_a, option_b, option_c, option_d, correct_answer_text, question_type, category, difficulty",
       )
       .order("created_at", { ascending: true });
     if (data.setId) query = query.eq("set_id", data.setId);
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    return (rows ?? []).map(({ correct_answer_text, ...r }) => ({
+      ...r,
+      correct_answer: correct_answer_text ?? "",
+    })) as QuestionRow[];
   });
 
 type QuestionInput = {
@@ -203,9 +206,15 @@ export const addQuestion = createServerFn({ method: "POST" })
         .maybeSingle();
       targetSetId = firstSet?.id ?? null;
     }
+    const { correct_answer, ...restFields } = fields;
     const { data: row, error } = await supabase
       .from("questions")
-      .insert({ ...fields, category: fields.category ?? "Genel Kültür", set_id: targetSetId })
+      .insert({
+        ...restFields,
+        correct_answer_text: correct_answer,
+        category: fields.category ?? "Genel Kültür",
+        set_id: targetSetId,
+      })
       .select("id")
       .maybeSingle();
     if (error || !row) throw new Error("Soru kaydedilemedi");
@@ -218,7 +227,7 @@ export const duplicateQuestion = createServerFn({ method: "POST" })
     const supabase = await db();
     const { data: src, error: readError } = await supabase
       .from("questions")
-      .select("question, option_a, option_b, option_c, option_d, correct_answer, question_type, category, difficulty, time_limit, set_id")
+      .select("question, option_a, option_b, option_c, option_d, correct_answer_text, question_type, category, difficulty, time_limit, set_id")
       .eq("id", data.id)
       .maybeSingle();
     if (readError || !src) throw new Error("Soru bulunamadı");
@@ -240,8 +249,9 @@ export const updateQuestion = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { id, ...fields } = data;
     validate(fields);
-    const { category, ...rest } = fields;
-    const update = category === undefined ? rest : { ...rest, category };
+    const { category, correct_answer, ...rest } = fields;
+    const base = { ...rest, correct_answer_text: correct_answer };
+    const update = category === undefined ? base : { ...base, category };
     const supabase = await db();
     const { error } = await supabase.from("questions").update(update).eq("id", id);
     if (error) throw new Error("Soru güncellenemedi");
