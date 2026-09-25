@@ -243,3 +243,12 @@
     color: var(--color-foreground);
   }
 }
+
+@keyframes countdown-pop {
+  0% { transform: scale(2.2); opacity: 0; }
+  30% { transform: scale(0.9); opacity: 1; }
+  45% { transform: scale(1.05); }
+  80% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.6); opacity: 0; }
+}
+.countdown-pop { display: inline-block; animation: countdown-pop 1s ease-out forwards; }
